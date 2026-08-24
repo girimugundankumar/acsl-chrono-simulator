@@ -797,7 +797,9 @@ void mrac_hybrid::compute_rotational_control()
                               aim.v_norm_sq * (aim.cm_lt + aim.cm_rt),
                               aim.v_norm_sq * (aim.cm_up + aim.cm_lw),
                               aim.v_norm_sq * sin(aim.beta_com) * (aim.cd_lw + aim.cd_up),
-                              aim.v_norm_sq * cos(aim.beta_com) * (aim.cl_rt + aim.cl_rt) + sin(aim.beta_com) * (aim.cd_lt + aim.cd_rt);
+                              aim.v_norm_sq * ( cos(aim.beta_com) * (aim.cl_rt + aim.cl_rt) + sin(aim.beta_com) * (aim.cd_lt + aim.cd_rt) ),
+                              aim.v_norm_sq * ( cos(aim.alpha_com) * (aim.cl_lw + aim.cl_up) + cos(aim.beta_com) * sin(aim.alpha_com) * (aim.cd_lw + aim.cd_up) ),
+                              aim.v_norm_sq * sin(aim.alpha_com) * ( cos(aim.beta_com) * (aim.cd_lt + aim.cd_rt) - sin(aim.beta_com) * (aim.cl_lt + aim.cl_rt) );
 
   // Compute the augmented regressor vector
   cim.augmented_inner_loop_regressor << cim.tau_rot_baseline, cim.inner_loop_regressor;
