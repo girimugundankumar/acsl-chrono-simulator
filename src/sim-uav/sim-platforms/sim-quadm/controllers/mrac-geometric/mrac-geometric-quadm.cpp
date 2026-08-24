@@ -79,7 +79,7 @@ void mrac_geometric::read_params(const std::string& jsonFile)
     cip.Kd_tran = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["TRANSLATIONAL"]["KD_translational"], 3, 3);
     cip.Gamma_x_tran = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["TRANSLATIONAL"]["Gamma_x_translational"], 6, 6);
 	cip.Gamma_r_tran = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["TRANSLATIONAL"]["Gamma_r_translational"], 3, 3);
-	cip.Gamma_Theta_tran = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["TRANSLATIONAL"]["Gamma_Theta_translational"], 30, 30);
+	cip.Gamma_Theta_tran = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["TRANSLATIONAL"]["Gamma_Theta_translational"], 6, 6);
 	cip.Q_tran = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["TRANSLATIONAL"]["Q_translational"], 6, 6);
 
     // Rotational parameters
@@ -90,7 +90,7 @@ void mrac_geometric::read_params(const std::string& jsonFile)
     cip.Ka_att = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["ROTATIONAL"]["Ka_rotational"], 3, 1);
     cip.Gamma_x_rot = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["ROTATIONAL"]["Gamma_x_rotational"], 3, 3);
 	cip.Gamma_r_rot = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["ROTATIONAL"]["Gamma_r_rotational"], 3, 3);
-	cip.Gamma_Theta_rot = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["ROTATIONAL"]["Gamma_Theta_rotational"], 12, 12);
+	cip.Gamma_Theta_rot = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["ROTATIONAL"]["Gamma_Theta_rotational"], 6, 6);
 	cip.Q_rot = ::_shared_::_deserialize_::jsonToScaledMatrixXd(j["ROTATIONAL"]["Q_rotational"], 3, 3);
 
     // Differentiator matrices
@@ -323,8 +323,11 @@ void mrac_geometric::compute_translational_control_in_I()
                                    + cim.x_tran_ref_dot.tail<3>() )             // Feedforward term
                                    - MASS * G * e3_basis;                       // Weight Dynamic inversion term
 
-    // Temp regressor
-    cim.outer_loop_regressor.setZero();
+    // Outer loop regressor (aerodynamic drag term)
+    // Compute velocity in body frame J: v_J = R_ij * v_I
+    Eigen::Matrix<double, 3, 1> v_J = cim.Rij * cim.x_tran_vel;
+    double v_J_norm = v_J.norm();
+    cim.outer_loop_regressor << -0.5 * v_J * v_J_norm;
                                    
     // Compute the augmented regressor vector
     cim.augmented_outer_loop_regressor << cim.mu_tran_baseline,
@@ -539,8 +542,10 @@ void mrac_geometric::compute_rotational_control()
                                                  - cip.Kd_att * cim.omega_e)    // Derivative term
                                                  + fft;                         // Feedforward term
 
-    // Temp regressor
-    cim.inner_loop_regressor.setZero();
+    // Inner loop regressor
+    cim.inner_loop_regressor << cim.omega(1) * cim.omega(2),
+                                cim.omega(0) * cim.omega(2),
+                                cim.omega(0) * cim.omega(1);
 
     // Compute the augmented regressor vector
     cim.augmented_inner_loop_regressor << cim.tau_rot_baseline, cim.inner_loop_regressor;
