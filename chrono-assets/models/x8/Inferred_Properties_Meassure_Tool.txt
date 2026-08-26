@@ -1,0 +1,74 @@
+Full Assembly + Box:
+Mass properties of drone
+     Configuration: Default
+     Coordinate system: -- default --
+
+Mass = 1.90581492 kilograms
+
+Volume = 0.00100366 cubic meters
+
+Surface area = 0.66270512 square meters
+
+Center of mass: ( meters )
+	X = 0.01003909
+	Y = -0.00307260
+	Z = 0.06245381
+
+Principal axes of inertia and principal moments of inertia: ( kilograms * square meters )
+Taken at the center of mass.
+	 Ix = (-0.14152632, -0.00350729,  0.98992828)   	Px = 0.01770417
+	 Iy = (-0.00387221, -0.99998411, -0.00409652)   	Py = 0.02348946
+	 Iz = ( 0.98992692, -0.00441297,  0.14151049)   	Pz = 0.02561571
+
+Moments of inertia: ( kilograms * square meters )
+Taken at the center of mass and aligned with the output coordinate system. (Using positive tensor notation.)
+	Lxx = 0.02545721	Lxy = 0.00001216	Lxz = -0.00110838
+	Lyx = 0.00001216	Lyy = 0.02348943	Lyz = -0.00001876
+	Lzx = -0.00110838	Lzy = -0.00001876	Lzz = 0.01786270
+
+Moments of inertia: ( kilograms * square meters )
+Taken at the output coordinate system. (Using positive tensor notation.)
+	Ixx = 0.03290880	Ixy = -0.00004663	Ixz = 0.00008653
+	Iyx = -0.00004663	Iyy = 0.03111509	Iyz = -0.00038448
+	Izx = 0.00008653	Izy = -0.00038448	Izz = 0.01807276
+
+
+
+
+
+
+
+
+Full Assembly without the box:
+Mass properties of drone
+     Configuration: Default
+     Coordinate system: -- default --
+
+Mass = 1.54952076 kilograms
+
+Volume = 0.00065435 cubic meters
+
+Surface area = 0.42743312 square meters
+
+Center of mass: ( meters )
+	X = 0.01164716
+	Y = -0.00303838
+	Z = 0.03285546
+
+Principal axes of inertia and principal moments of inertia: ( kilograms * square meters )
+Taken at the center of mass.
+	 Ix = (-0.31654737, -0.09436898,  0.94387089)   	Px = 0.01375837
+	 Iy = ( 0.02667000, -0.99553113, -0.09058966)   	Py = 0.01390254
+	 Iz = ( 0.94820171, -0.00350288,  0.31764958)   	Pz = 0.01612969
+
+Moments of inertia: ( kilograms * square meters )
+Taken at the center of mass and aligned with the output coordinate system. (Using positive tensor notation.)
+	Lxx = 0.01589049	Lxy = 0.00001170	Lxz = -0.00071388
+	Lyx = 0.00001170	Lyy = 0.01390128	Lyz = -0.00001036
+	Lzx = -0.00071388	Lzy = -0.00001036	Lzz = 0.01399882
+
+Moments of inertia: ( kilograms * square meters )
+Taken at the output coordinate system. (Using positive tensor notation.)
+	Ixx = 0.01757748	Ixy = -0.00004313	Ixz = -0.00012092
+	Iyx = -0.00004313	Iyy = 0.01578417	Iyz = -0.00016505
+	Izx = -0.00012092	Izy = -0.00016505	Izz = 0.01422333

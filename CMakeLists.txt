@@ -169,6 +169,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-qrbp)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-tailsitter)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-quadm)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-x8)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-scene)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src/sim-scene)
@@ -200,6 +201,11 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/si
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-quadm/controllers)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-quadm/controllers/mrac-omega)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-quadm/controllers/mrac-geometric)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-quadm/controllers/mrac-geometric-na-ebci)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-x8/controllers)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-x8/controllers/mrac-omega)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/sim-uav/sim-platforms/sim-x8/controllers/mrac-geometric)
 
 #-----------------------------------------------------------------------------
 # Fix for VS 2017 15.8 and newer to handle alignment specification with Eigen
@@ -228,17 +234,22 @@ endif()
 set(SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-main/sim-main.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-system/sim-system.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-scene/sim-locales/sim-flat/sim-flat.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-bridge/sim-bridge.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-aerofoil/sim-aerofoil.cpp
+
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-utilities/sim-helpers.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-utilities/sim-logger.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-utilities/continuous-lyapunov-equation.cpp
+
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-qrbp/sim-qrbp.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-tailsitter/sim-tailsitter.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-quadm/sim-quadm.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-scene/sim-locales/sim-flat/sim-flat.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-bridge/sim-bridge.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-x8/sim-x8.cpp
+
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-trajectory/sim-trajectories/piecewise-polynomial/piecewise-polynomial-trajectory.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-trajectory/sim-trajectories/vector-interpolation/vector-interpolation-trajectory.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-utilities/continuous-lyapunov-equation.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-aerofoil/sim-aerofoil.cpp
+   
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-qrbp/controllers/pid-omega/pid-omega-qrbp.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-qrbp/controllers/mrac-omega/mrac-omega-qrbp.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-qrbp/controllers/mrac-observer/mrac-observer-qrbp.cpp
@@ -246,10 +257,16 @@ set(SOURCES
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-qrbp/controllers/pid-quaternion/pid-quaternion-qrbp.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-qrbp/controllers/pid-geometric/pid-geometric-qrbp.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-qrbp/controllers/mrac-geometric/mrac-geometric-qrbp.cpp
+
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-tailsitter/controllers/mrac-geometric/mrac-geometric-tailsitter.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-tailsitter/controllers/mrac-hybrid/mrac-hybrid-tailsitter.cpp
+
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-quadm/controllers/mrac-omega/mrac-omega-quadm.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-quadm/controllers/mrac-geometric/mrac-geometric-quadm.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-quadm/controllers/mrac-geometric-na-ebci/mrac-geometric-na-ebci-quadm.cpp
+
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-x8/controllers/mrac-omega/mrac-omega-x8.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/src/sim-uav/sim-platforms/sim-x8/controllers/mrac-geometric/mrac-geometric-x8.cpp
    )
 
 add_executable(acsl_sim ${SOURCES})

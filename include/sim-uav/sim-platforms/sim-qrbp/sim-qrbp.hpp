@@ -47,7 +47,7 @@ namespace _qrbp_
 {
 
 // Define the number of propellers for this class of UAV
-#define NOP 4
+static constexpr int NOP = 4;
 
 // ============================================================================
 // simqrbp class

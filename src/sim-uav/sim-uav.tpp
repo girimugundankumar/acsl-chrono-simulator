@@ -764,6 +764,12 @@ void simuav<nop>::LinkUAVBodies(const std::vector<LinkData>& link_data_vec)
                     prop.bodyA, prop.bodyB, false, prop.cA, prop.cB, prop.dA, prop.dB);
                 std::dynamic_pointer_cast<chrono::ChLinkMateOrthogonal>(link)->SetName(prop.name);
             }
+            // Fix
+            else if constexpr (std::is_same_v<std::decay_t<decltype(prop)>, LinkProperty<LinkType::Fix>>) {
+                link = chrono_types::make_shared<chrono::ChLinkMateFix>();
+                std::dynamic_pointer_cast<chrono::ChLinkMateFix>(link)->Initialize(prop.bodyA, prop.bodyB);
+                std::dynamic_pointer_cast<chrono::ChLinkMateFix>(link)->SetName(prop.name);
+            }
             linklist.push_back(link);
         }, link_data);
     }

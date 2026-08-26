@@ -82,8 +82,9 @@
 #include "mrac-hybrid-tailsitter.hpp"
 #include "mrac-omega-quadm.hpp"
 #include "mrac-geometric-quadm.hpp"
-// #include "pid-x8copter.hpp"
-// #include "mrac-x8copter.hpp"
+#include "mrac-geometric-na-ebci-quadm.hpp"
+#include "mrac-omega-x8.hpp"
+#include "mrac-geometric-x8.hpp"
 
 namespace _acsl_
 {
@@ -142,17 +143,6 @@ struct controllers
     } qrbp;
 
     // -------------------------------------------------------------------------
-    // Platform group: X8 copter
-    // Holds controller flags specific to coaxial X8 drone platform.
-    // -------------------------------------------------------------------------
-    struct x8copter
-    {
-        bool pid{};         // Standard PID controller
-        bool mrac{};        // Model Reference Adaptive Controller
-        bool tlmrac{};      // Two-Layer MRAC controller
-    } x8copter;
-
-    // -------------------------------------------------------------------------
     // Platform group: tailsitter
     // Holds controller flags specific to tailsitter.
     // -------------------------------------------------------------------------
@@ -164,13 +154,24 @@ struct controllers
 
     // -------------------------------------------------------------------------
     // Platform group: quadm
-    // Holds controller flags specific to tailsitter.
+    // Holds controller flags specific to quadm.
     // -------------------------------------------------------------------------
     struct quadm
     {
-        bool mrac_omega{};      // MRAC omega controller for QUADM
-        bool mrac_geometric{};  // MRAC geometric controller for QUADM
+        bool mrac_omega{};              // MRAC omega controller for QUADM
+        bool mrac_geometric{};          // MRAC geometric controller for QUADM
+        bool mrac_geometric_na_ebci{};  // MRAC geometric with non-adaptive ebci controller for QUADM
     } quadm;
+    
+    // -------------------------------------------------------------------------
+    // Platform group: x8
+    // Holds controller flags specific to x8.
+    // -------------------------------------------------------------------------
+    struct x8
+    {
+        bool mrac_omega{};      // MRAC omega controller for X8
+        bool mrac_geometric{};  // MRAC geometric controller for X8
+    } x8;
 
     // -------------------------------------------------------------------------
     // Returns all controller selection flags as:
@@ -189,13 +190,13 @@ struct controllers
             {"qrbp", "pid_quaternion", qrbp.pid_quaternion},
             {"qrbp", "pid_geometric", qrbp.pid_geometric},
             {"qrbp", "mrac_geometric", qrbp.mrac_geometric},
-            {"x8copter", "pid", x8copter.pid},
-            {"x8copter", "mrac", x8copter.mrac},
-            {"x8copter", "tlmrac", x8copter.tlmrac},
             {"tailsitter", "mrac_geometric", tailsitter.mrac_geometric},
             {"tailsitter", "mrac_hybrid", tailsitter.mrac_hybrid},
             {"quadm", "mrac_omega", quadm.mrac_omega},
-            {"quadm", "mrac_geometric", quadm.mrac_geometric}
+            {"quadm", "mrac_geometric", quadm.mrac_geometric},
+            {"quadm", "mrac_geometric_na_ebci", quadm.mrac_geometric_na_ebci},
+            {"x8", "mrac_omega", x8.mrac_omega},
+            {"x8", "mrac_geometric", x8.mrac_geometric},
         };
     }
 
@@ -278,6 +279,18 @@ struct controllers
         else if (active.first == "quadm" && active.second == "mrac_geometric") {
             _message_::SIMULATOR_INFO("[SIMCTL]: ATTACHING MRAC GEOMETRIC CONTROLLER TO QUADM");
             return std::make_unique< ::_acsl_::_quadm_::_mrac_geometric_::mrac_geometric >(logger, trajectory);
+        }
+        else if (active.first == "quadm" && active.second == "mrac_geometric_na_ebci") {
+            _message_::SIMULATOR_INFO("[SIMCTL]: ATTACHING MRAC GEOMETRIC NON-ADAPTIVE EBCI CONTROLLER TO QUADM");
+            return std::make_unique< ::_acsl_::_quadm_::_mrac_geometric_na_ebci_::mrac_geometric_na_ebci >(logger, trajectory);
+        }
+        else if (active.first == "x8" && active.second == "mrac_omega") {
+            _message_::SIMULATOR_INFO("[SIMCTL]: ATTACHING MRAC OMEGA CONTROLLER TO X8");
+            return std::make_unique< ::_acsl_::_x8_::_mrac_omega_::mrac_omega >(logger, trajectory);
+        }
+        else if (active.first == "x8" && active.second == "mrac_geometric") {
+            _message_::SIMULATOR_INFO("[SIMCTL]: ATTACHING MRAC GEOMETRIC CONTROLLER TO X8");
+            return std::make_unique< ::_acsl_::_x8_::_mrac_geometric_::mrac_geometric >(logger, trajectory);
         }
         // [Add more else if branches for other controllers as needed]
         // e.g., x8copter and tailsitter controllers

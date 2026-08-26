@@ -72,6 +72,7 @@
 // #include "sim-x8copter.hpp"
 #include "sim-tailsitter.hpp"
 #include "sim-quadm.hpp"
+#include "sim-x8.hpp"
 
 namespace _acsl_
 {
@@ -105,9 +106,9 @@ namespace _bridge_
 // -----------------------------------------------------------------------------
 struct platforms {
     bool qrbp{};         // Quadrotor Biplane
-    bool x8copter{};     // X8 coaxial drone
     bool tailsitter{};   // Tailsitter (scaled/lighter version of the QRBP)
     bool quadm{};        // Medium Quadcopter
+    bool x8{};           // X8 coaxial drone
 
 
     // -------------------------------------------------------------------------
@@ -123,9 +124,9 @@ struct platforms {
     std::vector<std::pair<std::string, bool&>> asVectorRef() {
         return {
             {"qrbp", qrbp},
-            {"x8copter", x8copter},
             {"tailsitter", tailsitter},
-            {"quadm", quadm}
+            {"quadm", quadm},
+            {"x8", x8},
         };
     }
 
@@ -171,12 +172,12 @@ struct platforms {
             _message_::SIMULATOR_INFO("[SIMBRG]: ATTACHING MEDIUM QUADCOPTER TO THE PHYSICS SYSTEM");
             return std::unique_ptr< ::_acsl_::_uav_::simuavbase >( new ::_acsl_::_quadm_::simquadm(sys) );
         }
-        // else if (active == "x8copter") {
-        //     _message_::SIMULATOR_INFO("ATTACHING X8COPTER TO THE PHYSICS SYSTEM");
-        //     return std::unique_ptr< ::_acsl_::_uav_::simuavbase >(
-        //         new ::_acsl_::_x8copter_::simx8copter(sys)
-        //     );
-        // }
+        else if (active == "x8") {
+            _message_::SIMULATOR_INFO("ATTACHING X8COPTER TO THE PHYSICS SYSTEM");
+            return std::unique_ptr< ::_acsl_::_uav_::simuavbase >(
+                new ::_acsl_::_x8_::simx8(sys)
+            );
+        }
 
         _message_::SIMULATOR_ERROR("[SIMBRG]: ACTIVE PLATFORM NAME NOT RECOGNIZED: " + active);
         return nullptr;

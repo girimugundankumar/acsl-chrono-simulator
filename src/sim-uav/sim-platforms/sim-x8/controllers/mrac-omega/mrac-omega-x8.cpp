@@ -23,24 +23,24 @@
  **********************************************************************************************************************/
 
  /***********************************************************************************************************************
- * File:        mrac-omega-quadm.cpp
- * Author:      Giri Mugundan Kumar
- * Date:        July 23, 2025
+ * File:        mrac-omega-x8.cpp
+ * Author:      Xavier Casanova
+ * Date:        August 04, 2026
  * For info:    Andrea L'Afflitto 
  *              a.lafflitto@vt.edu
  * 
- * Description: MRAC with angular velocities for the QUADM. Inherts the class controller_base for the basic 
+ * Description: MRAC with angular velocities for the X8. Inherts the class controller_base for the basic 
  *              functionality that is to be used for all control algorithms.
  * 
- * GitHub:    https://github.com/girimugundankumar/acsl-physics-sim.git
+ * GitHub:    https://github.com/xavier1cas/acsl-chrono-simulator.git
  **********************************************************************************************************************/
 
-#include "mrac-omega-quadm.hpp"
+#include "mrac-omega-x8.hpp"
 
 namespace _acsl_
 {
 
-namespace _quadm_
+namespace _x8_
 {
 
 namespace _mrac_omega_
@@ -128,7 +128,7 @@ void mrac_omega::read_params(const std::string& jsonFile)
 // Implementing virtual functios from controller_base
 void mrac_omega::init(){
 	// Reading in the parameters
-	read_params("../chrono-assets/parameters/quadm/MRAC_OMEGA/gains_MRAC_OMEGA.json");
+	read_params("../chrono-assets/parameters/x8/MRAC_OMEGA/gains_MRAC_OMEGA.json");
 
 	// Set the inital conditions
     y.fill(0.0);
@@ -582,16 +582,20 @@ void mrac_omega::compute_rotational_control()
 void mrac_omega::compute_normalized_thrusts()
 {
     // Compute the individual thrusts in Newtons
-    cim.Thrust << mixer_matrix_quadm * cim.u;
+    cim.Thrust << mixer_matrix_x8 * cim.u;
 
     // Saturate each element of the Thrust vector between MIN_THRUST and MAX_THRUST
     cim.Sat_Thrust = (cim.Thrust.cwiseMin(MAX_THRUST).cwiseMax(MIN_THRUST));
 
     // Compute the final control inputs
-    control_input(0) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_quadm, cim.Sat_Thrust(0));
-    control_input(1) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_quadm, cim.Sat_Thrust(1));
-    control_input(2) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_quadm, cim.Sat_Thrust(2));
-    control_input(3) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_quadm, cim.Sat_Thrust(3));
+    control_input(0) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(0));
+    control_input(1) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(1));
+    control_input(2) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(2));
+    control_input(3) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(3));
+    control_input(4) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(4));
+    control_input(5) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(5));
+    control_input(6) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(6));
+    control_input(7) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(7));
 
 }
 
@@ -638,7 +642,7 @@ void mrac_omega::run(const double time_step_rk4_) {
 // Function that is called during the constructor. 
 bool mrac_omega::InitiateLogging()
 {
-    auto status = _logger_::_filesystem_::setupControllerLogging(this->m_logger, "quadm" ,"MRAC_OMEGA");
+    auto status = _logger_::_filesystem_::setupControllerLogging(this->m_logger, "x8" ,"MRAC_OMEGA");
     return status;
 }
 
@@ -787,10 +791,18 @@ void mrac_omega::ConfigureHeaders()
         << "Thrust Motor 2 [N], "
         << "Thrust Motor 3 [N], "
         << "Thrust Motor 4 [N], "
+        << "Thrust Motor 5 [N], "
+        << "Thrust Motor 6 [N], "
+        << "Thrust Motor 7 [N], "
+        << "Thrust Motor 8 [N], "
         << "Normalized Thrust 1 [-], "
         << "Normalized Thrust 2 [-], "
         << "Normalized Thrust 3 [-], "
         << "Normalized Thrust 4 [-], "
+        << "Normalized Thrust 5 [-], "
+        << "Normalized Thrust 6 [-], "
+        << "Normalized Thrust 7 [-], "
+        << "Normalized Thrust 8 [-], "
         << "dead_zone_value_translational [-], "
         << "dead_zone_value_rotational [-], "
         << "proj_op_activated_K_hat_x_translational [-], "
@@ -973,10 +985,18 @@ void mrac_omega::LogData()
         << cim.Thrust(1) << ", "
         << cim.Thrust(2) << ", "
         << cim.Thrust(3) << ", "
+        << cim.Thrust(4) << ", "
+        << cim.Thrust(5) << ", "
+        << cim.Thrust(6) << ", "
+        << cim.Thrust(7) << ", "
         << control_input(0) << ", "
         << control_input(1) << ", "
         << control_input(2) << ", "
         << control_input(3) << ", "
+        << control_input(4) << ", "
+        << control_input(5) << ", "
+        << control_input(6) << ", "
+        << control_input(7) << ", "
         << cim.dead_zone_value_translational << ", "
         << cim.dead_zone_value_rotational << ", "
         << cim.proj_op_activated_K_hat_x_translational << ", "
@@ -1008,7 +1028,6 @@ void mrac_omega::LogData()
 
 } // namespace _mrac_omega_
 
-} // namespace _qrbp_
+} // namespace _x8_
 
 } // namespace _acsl_
-
