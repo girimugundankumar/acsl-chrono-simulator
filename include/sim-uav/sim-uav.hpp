@@ -428,7 +428,7 @@ struct m_states {
 //   DistanceZ  - Represents a ChLinkMateDistanceZ constraint (Z-axis distance).
 //   Orthogonal - Represents a ChLinkMateOrthogonal constriaint (edge to edge).
 // ------------------------------------------------------------------------------------------------------------
-enum class LinkType { Parallel, Generic, DistanceZ, Orthogonal };
+enum class LinkType { Parallel, Generic, DistanceZ, Orthogonal, Fix };
 
 
 // ------------------------------------------------------------------------------------------------------------
@@ -547,6 +547,25 @@ struct LinkProperty<LinkType::Orthogonal> {
     chrono::ChVector3d cA, cB, dA, dB;
 };
 
+// ------------------------------------------------------------------------------------------------------------
+// Structure: LinkProperty<LinkType::Fix>
+//
+// Purpose:
+//   Stores all properties required for a ChLinkMateFix constraint,
+//   which constrains two bodies based on their initial positions.
+//
+// Members:
+//   name     - Descriptive or unique name for the link.
+//   bodyA    - Shared pointer to body A.
+//   bodyB    - Shared pointer to body B.
+// ------------------------------------------------------------------------------------------------------------
+
+template<>
+struct LinkProperty<LinkType::Fix> {
+    std::string name;
+    std::shared_ptr<chrono::ChBody> bodyA;
+    std::shared_ptr<chrono::ChBody> bodyB;
+};
 
 // ------------------------------------------------------------------------------------------------------------
 // Type Alias: LinkData
@@ -569,7 +588,8 @@ using LinkData = std::variant<
     LinkProperty<LinkType::Parallel>,
     LinkProperty<LinkType::Generic>,
     LinkProperty<LinkType::DistanceZ>,
-    LinkProperty<LinkType::Orthogonal>
+    LinkProperty<LinkType::Orthogonal>,
+    LinkProperty<LinkType::Fix>
 >;
 
 

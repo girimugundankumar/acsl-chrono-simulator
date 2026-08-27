@@ -46,7 +46,7 @@ namespace _tailsitter_
 {
 
 // Define the number of propellers for this class of UAV
-#define NOP 4
+static constexpr int NOP = 4;
 
 // ============================================================================
 // simtailsitter class

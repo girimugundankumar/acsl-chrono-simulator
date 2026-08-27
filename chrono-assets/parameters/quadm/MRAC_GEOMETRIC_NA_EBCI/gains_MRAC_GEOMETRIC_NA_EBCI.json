@@ -241,5 +241,14 @@
 
     "projection_x_max_Theta_rotational": 0.0225,
     "projection_epsilon_Theta_rotational": 0.04
+  },
+  "EBCI": {
+    "use_error_bounding_control_input": true,
+    "xi_bar_d_tran":    20.0,
+    "lambda_bar_tran":  1.0,
+    "delta_ebci_tran":  1e-5,
+    "xi_bar_d_rot":     10.0,
+    "lambda_bar_rot":   1.0,
+    "delta_ebci_rot":   1e-5
   }
 }

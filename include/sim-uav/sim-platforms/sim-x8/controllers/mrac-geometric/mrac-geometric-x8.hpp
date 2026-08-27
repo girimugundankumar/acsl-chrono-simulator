@@ -23,27 +23,27 @@
  **********************************************************************************************************************/
 
  /***********************************************************************************************************************
- * File:        mrac-geometric-tailsitter.hpp
- * Author:      Giri Mugundan Kumar
- * Date:        April 23, 2026
+ * File:        mrac-geometric-x8.hpp
+ * Author:      Xavier Casanova
+ * Date:        August 04, 2026
  * For info:    Andrea L'Afflitto 
  *              a.lafflitto@vt.edu
  * 
  * Description: Header file for mrac geometric controller for the medium quadcopter.
  * 
- * GitHub:    https://github.com/girimugundankumar/acsl-physics-sim.git
+ * GitHub:    https://github.com/xavier1cas/acsl-chrono-simulator.git
  **********************************************************************************************************************/
 
-#ifndef MRAC_GEOMETRIC_QUADM_HPP_
-#define MRAC_GEOMETRIC_QUADM_HPP_
+#ifndef MRAC_GEOMETRIC_X8_HPP_
+#define MRAC_GEOMETRIC_X8_HPP_
 
 #include "sim-control-base.hpp"     // Include for the base class of a controller defined in the simualtor 
-#include "quadm-parameter-file.hpp"  // Include for the hardcoded tailsitter parameters that are common for all controllers
+#include "x8-parameter-file.hpp"  // Include for the hardcoded x8 parameters that are common for all controllers
 
 namespace _acsl_
 {
 
-namespace _quadm_
+namespace _x8_
 {
 
 namespace _mrac_geometric_
@@ -234,8 +234,8 @@ struct controller_internal_members {
 };
 
 // =========================================================================================================
-// mrac_geometric.hpp   -- QUADM MRAC geometric controller
-//   - Implements a MRAC controller for rotation matrices and angular rates on the QUADM platform.
+// mrac_geometric.hpp   -- X8 MRAC geometric controller
+//   - Implements a MRAC controller for rotation matrices and angular rates on the X8 platform.
 //   - Inherits base routines and actuator interface from controller_base.
 //   - Inherits base routines from blackbox to setup the logging.
 // =========================================================================================================
@@ -340,13 +340,13 @@ private:
     boost::numeric::odeint::runge_kutta4<_control_::rk4_array<double, NSI>> rk4;
 
     // Define the internal parameter members of the controller 
-    ::_acsl_::_quadm_::_mrac_geometric_::controller_internal_parameters cip;
+    ::_acsl_::_x8_::_mrac_geometric_::controller_internal_parameters cip;
 
     // Define the internal members of the controller
-    ::_acsl_::_quadm_::_mrac_geometric_::controller_internal_members cim;   
+    ::_acsl_::_x8_::_mrac_geometric_::controller_internal_members cim;   
 
     // Define the internal integrated state members of the controller
-    ::_acsl_::_quadm_::_mrac_geometric_::controller_integrated_state_members csm;
+    ::_acsl_::_x8_::_mrac_geometric_::controller_integrated_state_members csm;
 
     // Member to unwrap the heading for heading command
     ::_shared_::_compute_::SimplePsiUnwrapState psiState;
@@ -377,10 +377,9 @@ private:
 
 }   // namespace _mrac_geometric_
 
-}   // namespace _quadm_
+}   // namespace _x8_
     
 }   // namespace _acsl_
 
 
-#endif  //  MRAC_GEOMETRIC_QUADM_HPP_
-
+#endif  //  MRAC_GEOMETRIC_X8_HPP_

@@ -23,24 +23,24 @@
  **********************************************************************************************************************/
 
  /***********************************************************************************************************************
- * File:        mrac-geometric-quadm.cpp
- * Author:      Giri Mugundan Kumar
- * Date:        April 23, 2026
+ * File:        mrac-geometric-x8.cpp
+ * Author:      Xavier Casanova
+ * Date:        August 04, 2026
  * For info:    Andrea L'Afflitto 
  *              a.lafflitto@vt.edu
  * 
- * Description: MRAC with geometric and angular velocities for the QUADM. Inherts the class controller_base for the
+ * Description: MRAC with geometric and angular velocities for the X8. Inherts the class controller_base for the
  *              basic functionality that is to be used for all control algorithms.
  * 
- * GitHub:    https://github.com/girimugundankumar/acsl-physics-sim.git
+ * GitHub:    https://github.com/xavier1cas/acsl-chrono-simulator.git
  **********************************************************************************************************************/
 
-#include "mrac-geometric-quadm.hpp"
+#include "mrac-geometric-x8.hpp"
 
 namespace _acsl_
 {
 
-namespace _quadm_
+namespace _x8_
 {
 
 namespace _mrac_geometric_
@@ -131,7 +131,7 @@ void mrac_geometric::read_params(const std::string& jsonFile)
 // Implementing virutal functions from controller_base
 void mrac_geometric::init(){
     // Reading in the parameters
-    read_params("../chrono-assets/parameters/quadm/MRAC_GEOMETRIC/gains_MRAC_GEOMETRIC.json");
+    read_params("../chrono-assets/parameters/x8/MRAC_GEOMETRIC/gains_MRAC_GEOMETRIC.json");
 
     // Set the inital conditions
     y.fill(0.0);
@@ -396,7 +396,7 @@ void mrac_geometric::compute_translational_control_in_I()
 
     // Adaptive control law
     cim.mu_tran_adaptive << csm.K_hat_x_tran.transpose() * cim.x_tran
-                          + csm.K_hat_r_tran.transpose() * cim.r_cmd_tran;
+                          + csm.K_hat_r_tran.transpose() * cim.r_cmd_tran
                           - csm.Theta_hat_tran.transpose() * cim.augmented_outer_loop_regressor;
 
     // Compute with the dynamic inversion without aerodynamics
@@ -542,7 +542,7 @@ void mrac_geometric::compute_rotational_control()
                                                  - cip.Kd_att * cim.omega_e)    // Derivative term
                                                  + fft;                         // Feedforward term
 
-    // Inner loop regressor
+    // Temp regressor
     cim.inner_loop_regressor << cim.omega(1) * cim.omega(2),
                                 cim.omega(0) * cim.omega(2),
                                 cim.omega(0) * cim.omega(1);
@@ -629,21 +629,29 @@ void mrac_geometric::compute_rotational_control()
 void mrac_geometric::compute_normalized_thrusts()
 {
     // Compute the individual thrusts in Newtons
-    cim.Thrust << mixer_matrix_quadm * cim.u;
+    cim.Thrust << mixer_matrix_x8 * cim.u;
 
     // Saturate each element of the Thrust vector between MIN_THRUST and MAX_THRUST
     cim.Sat_Thrust = (cim.Thrust.cwiseMin(MAX_THRUST).cwiseMax(MIN_THRUST));
 
     // Compute the final control inputs
-    control_input(0) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_quadm, cim.Sat_Thrust(0));
-    control_input(1) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_quadm, cim.Sat_Thrust(1));
-    control_input(2) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_quadm, cim.Sat_Thrust(2));
-    control_input(3) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_quadm, cim.Sat_Thrust(3));
+    control_input(0) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(0));
+    control_input(1) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(1));
+    control_input(2) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(2));
+    control_input(3) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(3));
+    control_input(4) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(4));
+    control_input(5) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(5));
+    control_input(6) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(6));
+    control_input(7) = ::_shared_::_compute_::evaluatePolynomial(thrust_polynomial_coeff_x8, cim.Sat_Thrust(7));
 
     std::cout << "T1: " << control_input(0) 
               << "| T2: " << control_input(1)
               << "| T3: " << control_input(2)
               << "| T4: " << control_input(3) 
+              << "| T5: " << control_input(4) 
+              << "| T6: " << control_input(5) 
+              << "| T7: " << control_input(6) 
+              << "| T8: " << control_input(7) 
               << std::endl;
 }
 
@@ -687,7 +695,7 @@ void mrac_geometric::run(const double time_step_rk4_) {
 // Function that is called during the constructor. 
 bool mrac_geometric::InitiateLogging()
 {
-    auto status = _logger_::_filesystem_::setupControllerLogging(this->m_logger, "quadm" ,"MRAC_GEOMETRIC");
+    auto status = _logger_::_filesystem_::setupControllerLogging(this->m_logger, "x8" ,"MRAC_GEOMETRIC");
     return status;
 }
 
@@ -796,10 +804,18 @@ void mrac_geometric::ConfigureHeaders()
         << "Thrust Motor 2 [N], "
         << "Thrust Motor 3 [N], "
         << "Thrust Motor 4 [N], "
+        << "Thrust Motor 5 [N], "
+        << "Thrust Motor 6 [N], "
+        << "Thrust Motor 7 [N], "
+        << "Thrust Motor 8 [N], "
         << "Normalized Thrust 1 [-], "
         << "Normalized Thrust 2 [-], "
         << "Normalized Thrust 3 [-], "
         << "Normalized Thrust 4 [-], "
+        << "Normalized Thrust 5 [-], "
+        << "Normalized Thrust 6 [-], "
+        << "Normalized Thrust 7 [-], "
+        << "Normalized Thrust 8 [-], "
         << "dead_zone_value_translational [-], "
         << "dead_zone_value_rotational [-], "
         << "proj_op_activated_K_hat_x_translational [-], "
@@ -938,10 +954,18 @@ void mrac_geometric::LogData()
         << cim.Sat_Thrust(1) << ", "
         << cim.Sat_Thrust(2) << ", "
         << cim.Sat_Thrust(3) << ", "
+        << cim.Sat_Thrust(4) << ", "
+        << cim.Sat_Thrust(5) << ", "
+        << cim.Sat_Thrust(6) << ", "
+        << cim.Sat_Thrust(7) << ", "
         << this->control_input(0) << ", "
         << this->control_input(1) << ", "
         << this->control_input(2) << ", "
         << this->control_input(3) << ", "
+        << this->control_input(4) << ", "
+        << this->control_input(5) << ", "
+        << this->control_input(6) << ", "
+        << this->control_input(7) << ", "
         << cim.dead_zone_value_translational << ", "
         << cim.dead_zone_value_rotational << ", "
         << cim.proj_op_activated_K_hat_x_translational << ", "
@@ -977,6 +1001,6 @@ void mrac_geometric::LogData()
 
 }   // namespace _mrac_geometric_
 
-}   // namespace quadm_
+}   // namespace _x8_
     
 }   // namespace _acsl_

@@ -23,19 +23,19 @@
  **********************************************************************************************************************/
 
  /***********************************************************************************************************************
- * File:        mrac-geometric-quadm.cpp
- * Author:      Giri Mugundan Kumar
- * Date:        April 23, 2026
+ * File:        mrac-geometric-na-ebci-quadm.cpp
+ * Author:      Xavier Casanova
+ * Date:        August 12, 2026
  * For info:    Andrea L'Afflitto 
  *              a.lafflitto@vt.edu
  * 
- * Description: MRAC with geometric and angular velocities for the QUADM. Inherts the class controller_base for the
- *              basic functionality that is to be used for all control algorithms.
+ * Description: MRAC with geometric and angular velocities with error bounding control input for the QUADM.
+ *              Inherts the class controller_base for the basic functionality that is to be used for all control algorithms.
  * 
- * GitHub:    https://github.com/girimugundankumar/acsl-physics-sim.git
+ * GitHub:    https://github.com/xavier1cas/acsl-chrono-simulator.git
  **********************************************************************************************************************/
 
-#include "mrac-geometric-quadm.hpp"
+#include "mrac-geometric-na-ebci-quadm.hpp"
 
 namespace _acsl_
 {
@@ -43,7 +43,7 @@ namespace _acsl_
 namespace _quadm_
 {
 
-namespace _mrac_geometric_
+namespace _mrac_geometric_na_ebci_
 {
 
 // -------------------------------------------------------------------------
@@ -51,7 +51,7 @@ namespace _mrac_geometric_
 //   - Calls the base (controller_base) constructor and passes 
 //     both logger and trajectory.
 // -------------------------------------------------------------------------
-mrac_geometric::mrac_geometric(_acsl_::_logger_::simlog& logger, ::_acsl_::_trajectory_::trajectorybase& trajectory)
+mrac_geometric_na_ebci::mrac_geometric_na_ebci(_acsl_::_logger_::simlog& logger, ::_acsl_::_trajectory_::trajectorybase& trajectory)
                               : ::_acsl_::_control_::controller_base(logger, trajectory)
 {
     // Initial Conditions
@@ -62,7 +62,7 @@ mrac_geometric::mrac_geometric(_acsl_::_logger_::simlog& logger, ::_acsl_::_traj
 // read_params Implementation:
 // - Takes the hardcoded path for the gains and parameters and reads it in
 // -------------------------------------------------------------------------
-void mrac_geometric::read_params(const std::string& jsonFile)
+void mrac_geometric_na_ebci::read_params(const std::string& jsonFile)
 {
     // Implementation here
     std::ifstream file(jsonFile);
@@ -126,12 +126,20 @@ void mrac_geometric::read_params(const std::string& jsonFile)
     cip.projection_x_max_Theta_rotational = j["ROBUSTIFICATION"]["projection_x_max_Theta_rotational"];
 	cip.projection_epsilon_Theta_rotational = j["ROBUSTIFICATION"]["projection_epsilon_Theta_rotational"];
 
+    // EBCI Parameters
+    cip.use_ebci          = j["EBCI"]["use_error_bounding_control_input"];
+    cip.xi_bar_d_tran     = j["EBCI"]["xi_bar_d_tran"];
+    cip.lambda_bar_tran   = j["EBCI"]["lambda_bar_tran"];
+    cip.delta_ebci_tran   = j["EBCI"]["delta_ebci_tran"];
+    cip.xi_bar_d_rot      = j["EBCI"]["xi_bar_d_rot"];
+    cip.lambda_bar_rot    = j["EBCI"]["lambda_bar_rot"];
+    cip.delta_ebci_rot    = j["EBCI"]["delta_ebci_rot"];
 }
 
 // Implementing virutal functions from controller_base
-void mrac_geometric::init(){
+void mrac_geometric_na_ebci::init(){
     // Reading in the parameters
-    read_params("../chrono-assets/parameters/quadm/MRAC_GEOMETRIC/gains_MRAC_GEOMETRIC.json");
+    read_params("../chrono-assets/parameters/quadm/MRAC_GEOMETRIC_NA_EBCI/gains_MRAC_GEOMETRIC_NA_EBCI.json");
 
     // Set the inital conditions
     y.fill(0.0);
@@ -184,7 +192,7 @@ void mrac_geometric::init(){
 }
 
 // Update function for the controller
-void mrac_geometric::update(double time, 
+void mrac_geometric_na_ebci::update(double time, 
                             double x,
                             double y,
                             double z,
@@ -206,7 +214,7 @@ void mrac_geometric::update(double time,
     cim.t = time;
 
     // Assign the Translational States
-    cim.x_tran_pos << x,y,z;
+    cim.x_tran_pos << x, y, z;
     cim.x_tran_vel << vx, vy, vz;
     cim.x_tran << cim.x_tran_pos,
                   cim.x_tran_vel;
@@ -239,7 +247,7 @@ void mrac_geometric::update(double time,
 }
 
 // Function to assign elements from the rk4 integrator
-void mrac_geometric::assign_from_rk4()
+void mrac_geometric_na_ebci::assign_from_rk4()
 {
     int index = 0;
 
@@ -266,7 +274,7 @@ void mrac_geometric::assign_from_rk4()
 }
 
 // Model function for integration
-void mrac_geometric::model(const _control_::rk4_array<double, NSI> &y, _control_::rk4_array<double, NSI> &dy, double t)
+void mrac_geometric_na_ebci::model(const _control_::rk4_array<double, NSI> &y, _control_::rk4_array<double, NSI> &dy, double t)
 {
     int index = 0;
     
@@ -295,7 +303,7 @@ void mrac_geometric::model(const _control_::rk4_array<double, NSI> &y, _control_
 
 
 // Function to compute the outerloop control in I
-void mrac_geometric::compute_translational_control_in_I()
+void mrac_geometric_na_ebci::compute_translational_control_in_I()
 {
     // Compute the error in the states
     cim.e_tran_pos << cim.x_tran_pos - csm.x_tran_ref.head<3>();
@@ -396,15 +404,32 @@ void mrac_geometric::compute_translational_control_in_I()
 
     // Adaptive control law
     cim.mu_tran_adaptive << csm.K_hat_x_tran.transpose() * cim.x_tran
-                          + csm.K_hat_r_tran.transpose() * cim.r_cmd_tran;
+                          + csm.K_hat_r_tran.transpose() * cim.r_cmd_tran
                           - csm.Theta_hat_tran.transpose() * cim.augmented_outer_loop_regressor;
 
+    // EBCI outer loop
+    // B^T * P * e  (shape: 3x1)
+    Eigen::Matrix<double, 3, 1> BPe_tran = cip.B_tran.transpose() * cip.P_tran * cim.e_tran;
+    double BPe_tran_norm = BPe_tran.norm();
+
+    if (!cip.use_ebci || BPe_tran_norm < cip.delta_ebci_tran) {
+        cim.mu_ebci_tran.setZero();
+        std::cout << "Outer Loop EBCI pass" << std::endl;
+    } else {
+        double sum_Pe_tran = (cip.P_tran * cim.e_tran).cwiseAbs().sum();
+        cim.mu_ebci_tran = -(cip.xi_bar_d_tran / cip.lambda_bar_tran)
+                        * (BPe_tran / BPe_tran_norm)
+                        * sum_Pe_tran;
+        
+        std::cout << "Outer Loop EBCI computed" << std::endl;
+    }
+
     // Compute with the dynamic inversion without aerodynamics
-    cim.mu_tran_I << cim.mu_tran_baseline + cim.mu_tran_adaptive;
+    cim.mu_tran_I << cim.mu_tran_baseline + cim.mu_tran_adaptive + cim.mu_ebci_tran;
 }
 
 // Function to compute the outerloop translational control rate in I using the differentiator
-void mrac_geometric::compute_translational_control_rate()
+void mrac_geometric_na_ebci::compute_translational_control_rate()
 {
     // Compute the internal state for rate of change of mu
     cim.internal_state_mu_x_filter << cip.A_filter_mu * csm.state_mu_x_filter
@@ -423,7 +448,7 @@ void mrac_geometric::compute_translational_control_rate()
 }
 
 // Compute the orientation commands and the desired total thrust
-void mrac_geometric::compute_u1_R_d()
+void mrac_geometric_na_ebci::compute_u1_R_d()
 {
 	// Compute the desired total thrust
     cim.u(0) = cim.mu_tran_I.norm();
@@ -505,7 +530,7 @@ void mrac_geometric::compute_u1_R_d()
 }
 
 // Compute the rotational control
-void mrac_geometric::compute_rotational_control()
+void mrac_geometric_na_ebci::compute_rotational_control()
 {
     // Compute the error in the attitude
     Eigen::Matrix3d I = Eigen::Matrix3d::Identity();
@@ -616,8 +641,23 @@ void mrac_geometric::compute_rotational_control()
 						  + csm.K_hat_r_rot.transpose() * cim.omega_cmd
 						  - csm.Theta_hat_rot.transpose() * cim.augmented_inner_loop_regressor;
 
+    // EBCI inner loop
+    Eigen::Matrix<double, 3, 1> BPe_rot = cip.B_rot.transpose() * cip.P_rot * cim.omega_e;
+    double BPe_rot_norm = BPe_rot.norm();
+
+    if (!cip.use_ebci || BPe_rot_norm < cip.delta_ebci_rot) {
+        cim.tau_ebci_rot.setZero();
+        std::cout << "Inner Loop EBCI pass" << std::endl;
+    } else {
+        double sum_Pe_rot = (cip.P_rot * cim.omega_e).cwiseAbs().sum();
+        cim.tau_ebci_rot = -(cip.xi_bar_d_rot / cip.lambda_bar_rot)
+                        * (BPe_rot / BPe_rot_norm)
+                        * sum_Pe_rot;
+        std::cout << "Inner Loop EBCI computed" << std::endl;
+    }
+
 	// Total rotational control input
-	cim.tau_rot << cim.tau_rot_baseline + cim.tau_rot_adaptive;	
+	cim.tau_rot << cim.tau_rot_baseline + cim.tau_rot_adaptive + cim.tau_ebci_rot;
 
     // Assing the control inputs
     cim.u(1) = cim.tau_rot(0);
@@ -626,7 +666,7 @@ void mrac_geometric::compute_rotational_control()
 }
 
 // Function to compute the normalized thrusts
-void mrac_geometric::compute_normalized_thrusts()
+void mrac_geometric_na_ebci::compute_normalized_thrusts()
 {
     // Compute the individual thrusts in Newtons
     cim.Thrust << mixer_matrix_quadm * cim.u;
@@ -648,7 +688,7 @@ void mrac_geometric::compute_normalized_thrusts()
 }
 
 // Function that is called in sim-bridge.cpp
-void mrac_geometric::run(const double time_step_rk4_) {
+void mrac_geometric_na_ebci::run(const double time_step_rk4_) {
 
     // Process the dynamics --------------------------------------------------------
     // 1. Compute the aerodynamics
@@ -669,7 +709,7 @@ void mrac_geometric::run(const double time_step_rk4_) {
     compute_normalized_thrusts();
 
     // 7. Do the integration
-    rk4.do_step(boost::bind(&mrac_geometric::model, this, bph::_1, bph::_2, bph::_3),
+    rk4.do_step(boost::bind(&mrac_geometric_na_ebci::model, this, bph::_1, bph::_2, bph::_3),
                 y, cim.t, time_step_rk4_);
     
     // Capture the time after the execution of the controller
@@ -685,14 +725,14 @@ void mrac_geometric::run(const double time_step_rk4_) {
 }
 
 // Function that is called during the constructor. 
-bool mrac_geometric::InitiateLogging()
+bool mrac_geometric_na_ebci::InitiateLogging()
 {
-    auto status = _logger_::_filesystem_::setupControllerLogging(this->m_logger, "quadm" ,"MRAC_GEOMETRIC");
+    auto status = _logger_::_filesystem_::setupControllerLogging(this->m_logger, "quadm" ,"MRAC_GEOMETRIC_NA_EBCI");
     return status;
 }
 
 // Funciton that setups up the headers for the log file
-void mrac_geometric::ConfigureHeaders()
+void mrac_geometric_na_ebci::ConfigureHeaders()
 {
 
     // Create the oss object
@@ -835,7 +875,7 @@ void mrac_geometric::ConfigureHeaders()
 
 }
 
-void mrac_geometric::LogData()
+void mrac_geometric_na_ebci::LogData()
 {
     // Log the data
     std::ostringstream oss;
@@ -975,7 +1015,7 @@ void mrac_geometric::LogData()
 }
 
 
-}   // namespace _mrac_geometric_
+}   // namespace _mrac_geometric_na_ebci_
 
 }   // namespace quadm_
     

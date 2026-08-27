@@ -23,19 +23,20 @@
  **********************************************************************************************************************/
 
  /***********************************************************************************************************************
- * File:        mrac-geometric-tailsitter.hpp
- * Author:      Giri Mugundan Kumar
- * Date:        April 23, 2026
+ * File:        mrac-geometric-na-ebci-quadm.hpp
+ * Author:      Xavier Casanova
+ * Date:        August 12, 2026
  * For info:    Andrea L'Afflitto 
  *              a.lafflitto@vt.edu
  * 
- * Description: Header file for mrac geometric controller for the medium quadcopter.
+ * Description: Header file for mrac geometric controller with non-adaptive error bounding controll input 
+ *              for the medium quadcopter.
  * 
- * GitHub:    https://github.com/girimugundankumar/acsl-physics-sim.git
+ * GitHub:    https://github.com/xavier1cas/acsl-chrono-simulator.git
  **********************************************************************************************************************/
 
-#ifndef MRAC_GEOMETRIC_QUADM_HPP_
-#define MRAC_GEOMETRIC_QUADM_HPP_
+#ifndef MRAC_GEOMETRIC_NA_EBCI_QUADM_HPP_
+#define MRAC_GEOMETRIC_NA_EBCI_QUADM_HPP_
 
 #include "sim-control-base.hpp"     // Include for the base class of a controller defined in the simualtor 
 #include "quadm-parameter-file.hpp"  // Include for the hardcoded tailsitter parameters that are common for all controllers
@@ -46,7 +47,7 @@ namespace _acsl_
 namespace _quadm_
 {
 
-namespace _mrac_geometric_
+namespace _mrac_geometric_na_ebci_
 {
 
 // Define the number of states in the boost array for integration
@@ -118,6 +119,15 @@ struct controller_internal_parameters {
     double projection_x_max_Theta_rotational;    	// Rotational Projection limit for Theta_hat
     double projection_epsilon_Theta_rotational;  	// Rotational Projection tolerance for Theta_hat 
     
+    // Non-Adaptive EBCI Parameters
+    bool   use_ebci;
+    double xi_bar_d_tran;
+    double lambda_bar_tran;
+    double delta_ebci_tran;
+    double xi_bar_d_rot;
+    double lambda_bar_rot;
+    double delta_ebci_rot;
+
 };
 
 // Structure for all the members that are mapped to the rk4 vector AFTER integration
@@ -231,15 +241,18 @@ struct controller_internal_members {
     double alg_duration;                                           // Control execution duration
     std::chrono::high_resolution_clock::time_point alg_start_time; // Algorithm Start timepoint
     std::chrono::high_resolution_clock::time_point alg_end_time;   // Algorithm End timepoint
+
+    Eigen::Matrix<double, 3, 1> mu_ebci_tran;                      // EBCI outer loop contribution
+    Eigen::Matrix<double, 3, 1> tau_ebci_rot;                      // EBCI inner loop contribution
 };
 
 // =========================================================================================================
-// mrac_geometric.hpp   -- QUADM MRAC geometric controller
+// mrac_geometric_na_ebci.hpp   -- QUADM MRAC geometric controller
 //   - Implements a MRAC controller for rotation matrices and angular rates on the QUADM platform.
 //   - Inherits base routines and actuator interface from controller_base.
 //   - Inherits base routines from blackbox to setup the logging.
 // =========================================================================================================
-class mrac_geometric : public ::_acsl_::_control_::controller_base , public ::_acsl_::_logger_::blackbox
+class mrac_geometric_na_ebci : public ::_acsl_::_control_::controller_base , public ::_acsl_::_logger_::blackbox
 {
 
 public:
@@ -248,18 +261,18 @@ public:
     //   - Accepts simlog reference for logging duties.
     //   - Passes simlog to controller_base for unified logging.
     // -------------------------------------------------------------------------
-    mrac_geometric(_acsl_::_logger_::simlog& logger, ::_acsl_::_trajectory_::trajectorybase& trajectory);
+    mrac_geometric_na_ebci(_acsl_::_logger_::simlog& logger, ::_acsl_::_trajectory_::trajectorybase& trajectory);
 
     // -------------------------------------------------------------------------
     // Destructor:
     //   - Allows cleanup in derived class.
     // -------------------------------------------------------------------------
-    virtual ~mrac_geometric() = default;
+    virtual ~mrac_geometric_na_ebci() = default;
 
     
     // -------------------------------------------------------------------------
     // Override: update()
-    //   - Update controller state (to be implemented in mrac_geometric.cpp).
+    //   - Update controller state (to be implemented in mrac_geometric_na_ebci.cpp).
     //   - Provide logic in the source file.
     // -------------------------------------------------------------------------
     void update([[maybe_unused]] double time,
@@ -340,13 +353,13 @@ private:
     boost::numeric::odeint::runge_kutta4<_control_::rk4_array<double, NSI>> rk4;
 
     // Define the internal parameter members of the controller 
-    ::_acsl_::_quadm_::_mrac_geometric_::controller_internal_parameters cip;
+    ::_acsl_::_quadm_::_mrac_geometric_na_ebci_::controller_internal_parameters cip;
 
     // Define the internal members of the controller
-    ::_acsl_::_quadm_::_mrac_geometric_::controller_internal_members cim;   
+    ::_acsl_::_quadm_::_mrac_geometric_na_ebci_::controller_internal_members cim;   
 
     // Define the internal integrated state members of the controller
-    ::_acsl_::_quadm_::_mrac_geometric_::controller_integrated_state_members csm;
+    ::_acsl_::_quadm_::_mrac_geometric_na_ebci_::controller_integrated_state_members csm;
 
     // Member to unwrap the heading for heading command
     ::_shared_::_compute_::SimplePsiUnwrapState psiState;
@@ -375,12 +388,11 @@ private:
 
 };
 
-}   // namespace _mrac_geometric_
+}   // namespace _mrac_geometric_na_ebci_
 
 }   // namespace _quadm_
     
 }   // namespace _acsl_
 
 
-#endif  //  MRAC_GEOMETRIC_QUADM_HPP_
-
+#endif  //  MRAC_GEOMETRIC_NA_EBCI_QUADM_HPP_

@@ -23,27 +23,27 @@
  **********************************************************************************************************************/
 
  /***********************************************************************************************************************
- * File:        mrac-omega-quadm.hpp
- * Author:      Giri Mugundan Kumar
- * Date:        July 23, 2025
+ * File:        mrac-omega-x8.hpp
+ * Author:      Xavier Casanova
+ * Date:        August 04, 2026
  * For info:    Andrea L'Afflitto 
  *              a.lafflitto@vt.edu
  * 
- * Description: Header file for mrac omega controller for the QUADM.
+ * Description: Header file for mrac omega controller for the X8.
  * 
- * GitHub:    https://github.com/girimugundankumar/acsl-physics-sim.git
+ * GitHub:    https://github.com/xavier1cas/acsl-chrono-simulator.git
  **********************************************************************************************************************/
 
-#ifndef MRAC_OMEGA_QUADM_HPP_
-#define MRAC_OMEGA_QUADM_HPP_
+#ifndef MRAC_OMEGA_X8_HPP_
+#define MRAC_OMEGA_X8_HPP_
 
 #include "sim-control-base.hpp"      // Include for the base class of a controller defined in the simualtor 
-#include "quadm-parameter-file.hpp"  // Include for the hardcoded quadm parameters that are common for all controllers
+#include "x8-parameter-file.hpp"  // Include for the hardcoded x8 parameters that are common for all controllers
 
 namespace _acsl_
 {
 
-namespace _quadm_
+namespace _x8_
 {
 
 namespace _mrac_omega_
@@ -201,8 +201,8 @@ struct controller_internal_members {
 
 
 // =========================================================================================================
-// mrac_omega.hpp   -- QUADM MRAC Omega Controller w/ PID Baseline
-//   - Implements a MRAC controller for angular rates on the QUADM platform.
+// mrac_omega.hpp   -- X8 MRAC Omega Controller w/ PID Baseline
+//   - Implements a MRAC controller for angular rates on the X8 platform.
 //   - Inherits base routines and actuator interface from controller_base.
 //   - Inherits base routines from blackbox to setup the logging.
 // =========================================================================================================
@@ -306,13 +306,13 @@ private:
     boost::numeric::odeint::runge_kutta4<_control_::rk4_array<double, NSI>> rk4;
 
     // Define the internal parameter members of the controller 
-    ::_acsl_::_quadm_::_mrac_omega_::controller_internal_parameters cip;
+    ::_acsl_::_x8_::_mrac_omega_::controller_internal_parameters cip;
 
     // Define the internal members of the controller
-    ::_acsl_::_quadm_::_mrac_omega_::controller_internal_members cim;   
+    ::_acsl_::_x8_::_mrac_omega_::controller_internal_members cim;   
 
     // Define the internal integrated state members of the controller
-    ::_acsl_::_quadm_::_mrac_omega_::controller_integrated_state_members csm; 
+    ::_acsl_::_x8_::_mrac_omega_::controller_integrated_state_members csm; 
 
 private:
     // -------------------------------------------------------------------------
@@ -343,7 +343,7 @@ private:
 
 } // namespace _mrac_omega_
 
-} // namespace _quadm_
+} // namespace _x8_
 
 } // namespace _acsl_
 

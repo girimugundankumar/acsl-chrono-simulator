@@ -24,41 +24,41 @@
 
 
  /**********************************************************************************************************************
- * File:        sim-quadm.hpp
- * Author:      Giri Mugundan Kumar
- * Date:        June 12, 2026
+ * File:        sim-x8.hpp
+ * Author:      Xavier Casanova
+ * Date:        August 04, 2026
  * For info:    Andrea L'Afflitto 
  *              a.lafflitto@vt.edu
  * 
- * Description: Derived UAV class for the simulated medium quadcopter.
+ * Description: Derived UAV class for the simulated x8.
  * 
- * GitHub:    https://github.com/girimugundankumar/acsl-physics-sim.git
+ * GitHub:    https://github.com/xavier1cas/acsl-chrono-simulator.git
  **********************************************************************************************************************/
 
-#ifndef SIM_QUADM_HPP_
-#define SIM_QUADM_HPP_
+#ifndef SIM_X8_HPP_
+#define SIM_X8_HPP_
 
 #include "sim-uav.hpp"
 
 namespace _acsl_
 {
 
-namespace _quadm_
+namespace _x8_
 {
 
 // Define the number of propellers for this class of UAV
-static constexpr int NOP = 4;
+static constexpr int NOP = 8;
 
 // ============================================================================
-// simquadm class
-// Inherits from the templated base UAV simulator class, specifying nop = 4,
-// meaning this is a fixed 4‑propeller variant of the UAV.
+// simx8 class
+// Inherits from the templated base UAV simulator class, specifying nop = 8,
+// meaning this is a fixed 8‑propeller variant of the UAV.
 // ============================================================================
-class simquadm : public _acsl_::_uav_::simuav<NOP> 
+class simx8 : public _acsl_::_uav_::simuav<NOP> 
 {
 public:
     // ------------------------------------------------------------------------
-    // Constructor for simquadm
+    // Constructor for simx8
     //
     // Parameters:
     //   sys - a reference to the Chrono physical system (ChSystemNSC) 
@@ -67,10 +67,10 @@ public:
     // This constructor *must* forward 'sys' to the base class constructor
     // for simuav<4>, because that class stores a reference to ChSystemNSC.
     // ------------------------------------------------------------------------
-    simquadm(chrono::ChSystemNSC& sys) // <-- Call the base class constructor, Set the wing data.
+    simx8(chrono::ChSystemNSC& sys) // <-- Call the base class constructor, Set the wing data.
         : _acsl_::_uav_::simuav<NOP>(sys, ::_acsl_::_uav_::_aerofoil_::AirFoilType::NONE)  
     {
-        // All initialization specific to 'simquadm' goes here.
+        // All initialization specific to 'simx8' goes here.
         // NOTE: THE ORDER OF THESE FUNCTIONS MATTER. YOU CAN IGNORE THE UNIQUE FNS
         //       IF YOU ARE TRYING TO REPLICATE THIS CODE FOR ANOTHER PLATFORM.    
         // 
@@ -81,22 +81,23 @@ public:
         //   - Call the function to setup the chassis of the uav
         //   - Initiate the entire UAV and add it to the physics system
 
-        SetUAVPlatformName("quadm");                                                 // <- Baseclass function
+        SetUAVPlatformName("x8");                                                 // <- Baseclass function
         SetupInertialNEDFrame();                                                     // <- Baseclass function
-        SetUAVShapesDir("../chrono-assets/models/medianoQuad/medianoQuad_shapes/");  // <- Baseclass function
+        SetUAVShapesDir("../chrono-assets/models/x8/X8_shapes/");        // <- Baseclass function
         
-        ConfigureQUADMChassis();                                 // <- Compulsary derived class function
-        ConfigureQUADMProps();                                   // <- Compulsary derived class function
-        ConfigureQUADMLinks();                                   // <- Compulsary derived class function
-        ConfigureQUADMMotors();                                  // <- Compulsary derived class function
-        ConfigureQUADMAerodynamics();                            // <- Unique derived class function
-        
-        AddUAVToSystem();                                       // <- Baseclass function
+        ConfigureX8Chassis();                                 // <- Compulsary derived class function
+        ConfigureX8Props();                                   // <- Compulsary derived class function
+        ConfigureX8Links();                                   // <- Compulsary derived class function
+        ConfigureX8Motors();                                  // <- Compulsary derived class function
+        ConfigureX8Aerodynamics();                            // <- Unique derived class function
+        ConfigureX8Payload();                                 // <- Unique derived class function
+
+        AddUAVToSystem();                                     // <- Baseclass function
 
     }
 
     // ------------------------------------------------------------------------
-    // You need to add additional functions below that are unique to simquadm.
+    // You need to add additional functions below that are unique to simx8.
     // These functions include some compulsary functions and some unique to 
     // the platform itself.
     // NOTE: YOU CAN CHANGE THE NAME OF THE COMPULSARY FUNCTIONS TO THE NAME 
@@ -112,19 +113,21 @@ public:
     //
     // The unique functions are:
     //   - Function to setup the aerodynamics
+    //   - Function to setup the payload and payload-box
     // ------------------------------------------------------------------------
-    void ConfigureQUADMChassis();
-    void ConfigureQUADMProps();
-    void ConfigureQUADMLinks();
-    void ConfigureQUADMMotors();
-    void ConfigureQUADMAerodynamics();
+    void ConfigureX8Chassis();
+    void ConfigureX8Props();
+    void ConfigureX8Links();
+    void ConfigureX8Motors();
+    void ConfigureX8Aerodynamics();
+    void ConfigureX8Payload();
 };
 
 
-}   // namespace _quadm_
+}   // namespace _x8_
 
 
 }   // namespace _acsl_
 
 
-#endif // SIM_QUADM_HPP_
+#endif // SIM_X8_HPP_
