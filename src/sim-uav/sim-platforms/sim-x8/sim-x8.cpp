@@ -83,8 +83,8 @@ void simx8::ConfigureX8Chassis()
     mr(0,0)=-1;                     mr(1,0)=0;                      mr(2,0)=7.02385995171017E-15;
     mr(0,1)=-1.48723864357112E-16;  mr(1,1)=-1;                     mr(2,1)=-1.48723864357112E-16;
     mr(0,2)=7.02385995171017E-15;   mr(1,2)=-1.48723864357113E-16;  mr(2,2)=1;
-    pos = chrono::ChVector3d(0.00304557838099178,-0.00322141559125175,0.239749999999996);
-    dim = chrono::ChVector3d(0.245,0.373249790618444,0.0285);
+    pos = chrono::ChVector3d(0.00304557838099178,-0.00322141559125175,0.269749999999996);
+    dim = chrono::ChVector3d(0.245,0.373249790618444,0.0385);
     col = chrono_types::make_shared<chrono::ChCollisionShapeBox>(mat,dim);
     frame = chrono::ChFramed(pos, mr);
 
@@ -1036,21 +1036,25 @@ void simx8::ConfigureX8Payload()
         sph_mat
     );
 
-    sphereBody->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(-0.820174613366277,
-                                                                                              0.138257774369255,
-                                                                                              0.0490871680500573)));
+    // sphereBody->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(-0.820174613366277,
+    //                                                                                           0.138257774369255,
+    //                                                                                           0.0490871680500573)));
 
-    sphereBody1->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(-0.820174613366277 + 0.02,
-                                                                                              0.138257774369255 + 0.02,
-                                                                                              0.0490871680500573)));
+    sphereBody->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(0.00300000000000161,
+                                                                                            -0.00300000000000006,
+                                                                                             0.205499999999996)));
 
-    sphereBody2->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(-0.820174613366277 - 0.02,
-                                                                                              0.138257774369255 - 0.02,
-                                                                                              0.0490871680500573)));
+    sphereBody1->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(0.00300000000000161 + 0.02,
+                                                                                              -0.00300000000000006 + 0.02,
+                                                                                              0.205499999999996)));
 
-    sphereBody3->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(-0.820174613366277 + 0.02,
-                                                                                              0.138257774369255 - 0.02,
-                                                                                              0.0490871680500573)));
+    sphereBody2->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(0.00300000000000161 - 0.02,
+                                                                                              -0.00300000000000006 - 0.02,
+                                                                                              0.205499999999996)));
+
+    sphereBody3->SetPos(::_shared_::_transformations_::GetChronoPosFromNED(chrono::ChVector3d(0.00300000000000161 + 0.02,
+                                                                                              -0.00300000000000006 - 0.02,
+                                                                                              0.205499999999996)));
 
 
                                                                                           
