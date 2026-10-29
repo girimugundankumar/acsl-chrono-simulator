@@ -178,8 +178,9 @@ controller:
     mrac_hybrid: false
   quadm:
     mrac_omega: false
-    mrac_geometric: true
+    mrac_geometric: false
     mrac_geometric_na_ebci: false
+    nmpc: true
   x8:
     mrac_omega: false
     mrac_geometric: false
@@ -208,7 +209,7 @@ poly:
   # Set to true to use the segmented minimum-jerk polynomial trajectory module
   enabled: true
   # Type in the trajectory filename that needs to be imported
-  filename: bean_trajectory0p3
+  filename: bean_trajectory_modified0p8
   # Type in the filetype of the trajectory filename that needs to be imported
   filetype: json
 

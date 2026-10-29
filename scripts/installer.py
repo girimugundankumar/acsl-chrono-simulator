@@ -1162,6 +1162,32 @@ def install_pip3() -> None:
     apt_install(["python3-pip"])
 
 
+# The GA tuner (python-modules/ga) runs as the invoking user, not root, so
+# numpy/pymoo are checked for and pip-installed into that user's site
+# packages ("pip install --user"), never system-wide.
+def _as_invoking_user(command: list[str]) -> list[str]:
+    username = os.environ.get("SUDO_USER")
+    return ["sudo", "-u", username, "-H", *command] if username else command
+
+
+def ga_python_packages_installed() -> bool:
+    result = subprocess.run(_as_invoking_user(["python3", "-c", "import numpy, pymoo"]), capture_output=True)
+    return result.returncode == 0
+
+
+def install_ga_python_packages() -> None:
+    command = _as_invoking_user(["pip3", "install", "--user", "numpy", "pymoo"])
+    result = subprocess.run(command, text=True, capture_output=True)
+    if result.returncode != 0 and "externally-managed-environment" in (result.stdout + result.stderr):
+        # Ubuntu 24.04 (PEP 668) refuses even --user installs unless told to;
+        # a --user install only touches ~/.local, never the system packages.
+        result = subprocess.run([*command, "--break-system-packages"], text=True, capture_output=True)
+    print(result.stdout, end="")
+    print(result.stderr, end="", file=sys.stderr)
+    if result.returncode != 0:
+        raise InstallerError("Could not install numpy and pymoo for the GA tuner (see the output above).")
+
+
 def install_gcc() -> None:
     apt_install(["build-essential"])
 
@@ -1545,6 +1571,7 @@ def make_install_items() -> list[InstallItem]:
         InstallItem("Thrust", "Parallel CUDA headers", lambda: dpkg_package_installed("thrust") or dpkg_package_installed("libthrust-dev"), install_thrust, "Ubuntu package"),
         InstallItem("Python 3", "Python runtime", lambda: command_exists("python3"), install_python3, "Ubuntu package"),
         InstallItem("pip for Python 3", "Python packages", lambda: command_exists("pip3"), install_pip3, "Ubuntu package"),
+        InstallItem("numpy and pymoo", "GA tuner (python-modules/ga)", ga_python_packages_installed, install_ga_python_packages, "pip (user)"),
         InstallItem("GCC and build tools", "C and C++ compiler", lambda: command_exists("gcc") and command_exists("g++"), install_gcc, "Ubuntu package"),
         InstallItem("Clang", "LLVM compiler", lambda: command_exists("clang"), install_clang, "Ubuntu package"),
         InstallItem("CMake", "Build tools", cmake_is_sufficient, install_cmake, "Bundled source"),
