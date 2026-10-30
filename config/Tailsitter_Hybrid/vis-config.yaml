@@ -45,7 +45,7 @@ main:
   enable_irrlicht: true
 
   # Target framerate
-  target_frame_rate: 60.0
+  target_frame_rate: 120.0
 
 # ============================================================================
 # Camera options
@@ -58,7 +58,7 @@ camera:
   mv_cam_chase_ht: 1.0
 
   # (m) Distance the camera is placed in x (NED) 
-  mv_cam_chase_dt: 1.0
+  mv_cam_chase_dt: 0.05
   
 # ============================================================================
 # Render options for assets

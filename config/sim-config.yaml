@@ -87,13 +87,13 @@ platform:
   qrbp: false
   
   # Set to true to import the tailsitter
-  tailsitter: false
+  tailsitter: true
   
   # Set to true to import the medium quadcotper
   quadm: false
   
   # Set to true to import the x8 cotper
-  x8: true
+  x8: false
 
 # ============================================================================
 # UAV Origin Selection
@@ -101,7 +101,7 @@ platform:
 # ============================================================================
 origin:
   # Set to true to import the drone at (0,0,0) in the inertial frame
-  set_origin_to_zero: true
+  set_origin_to_zero: false
 
   # Set to true to import the drone at (X,Y,Z) in the inertial frame
   set_origin_to_custom: false
@@ -129,10 +129,10 @@ origin:
 # ============================================================================
 aerodynamics:
   # Set to true to enable the chassis drag aerodynamics
-  chassis_drag: false
+  chassis_drag: true
   
   # Set to true to enable the wing aerodynamics (if present)
-  wing_aero: false
+  wing_aero: true
   
   # Set to true to print the wing aerodynamic state data to the terminal screen
   aero_terminal: false
@@ -175,7 +175,7 @@ controller:
     tlmrac: false
   tailsitter:
     mrac_geometric: false
-    mrac_hybrid: false
+    mrac_hybrid: true
   quadm:
     mrac_omega: false
     mrac_geometric: false
@@ -183,7 +183,7 @@ controller:
     nmpc: false
   x8:
     mrac_omega: false
-    mrac_geometric: true
+    mrac_geometric: false
 
 # ============================================================================
 # Simulation Environment Selection
@@ -209,7 +209,7 @@ poly:
   # Set to true to use the segmented minimum-jerk polynomial trajectory module
   enabled: true
   # Type in the trajectory filename that needs to be imported
-  filename: rollercoaster_trajectory1p2
+  filename: faster_bank_traj0p8
   # Type in the filetype of the trajectory filename that needs to be imported
   filetype: json
 

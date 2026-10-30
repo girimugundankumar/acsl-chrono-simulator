@@ -1,1 +1,1 @@
-MRAC Hybrid with Tailsitter and payload with initial forceful drop.
+MRAC Hybrid with Tailsitter with initial forceful drop.
